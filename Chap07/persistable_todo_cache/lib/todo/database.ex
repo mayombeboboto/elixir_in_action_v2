@@ -33,7 +33,7 @@ defmodule Todo.Database do
   end
 
   @impl GenServer
-  def handle_call({:get key}, _from, state) do
+  def handle_call({:get, key}, _from, state) do
     data =
       case File.read(file_name(key)) do
         {:ok, contents} -> :erlang.binary_to_term(contents)

@@ -1,5 +1,6 @@
 defmodule Todo.Server do
   use GenServer
+  @type name() :: binary()
   @type entry_id() :: integer()
   @type in_entry() :: %{ title: binary(),
                          date: Calendar.date() }
@@ -7,9 +8,9 @@ defmodule Todo.Server do
                           title: binary(),
                           date: Calendar.date() }
 
-  @spec start_link() :: {:ok, pid()}
-  def start_link() do
-    GenServer.start_link( __MODULE__, nil)
+  @spec start_link(name()) :: {:ok, pid()}
+  def start_link(todo_list_name) do
+    GenServer.start_link( __MODULE__, todo_list_name)
   end
 
   @spec add_entry(pid(), in_entry()) :: no_return()
@@ -28,22 +29,26 @@ defmodule Todo.Server do
   end
 
   @impl true
-  def init(nil) do
-    {:ok, Todo.List.new()}
+  def init(todo_list_name) do
+    todo_list = Todo.Database.get(todo_list_name) || Todo.List.new()
+    {:ok, {todo_list_name, todo_list}}
   end
 
   @impl true
-  def handle_call({:entries, date}, _from, state) do
-    {:reply, Todo.List.entries(state, date), state}
+  def handle_call({:entries, date}, _from, {todo_list_name, todo_list}) do
+    {:reply, Todo.List.entries(todo_list, date), {todo_list_name, todo_list}}
   end
 
   @impl true
-  def handle_cast({:add_entry, entry}, state) do
-    {:noreply, Todo.List.add_entry(state, entry)}
+  def handle_cast({:add_entry, entry}, {todo_list_name, todo_list}) do
+    todo_list = Todo.List.add_entry(todo_list, entry)
+    Todo.Database.store(todo_list_name, todo_list)
+    {:noreply, {todo_list_name, todo_list}}
   end
 
-  def handle_cast({:delete_entry, id}, state) do
-    {:noreply, Todo.List.delete_entry(state, id)}
+  def handle_cast({:delete_entry, id}, {todo_list_name, todo_list}) do
+    todo_list = Todo.List.delete_entry(todo_list, id)
+    {:noreply, {todo_list_name, todo_list}}
   end
 
   @impl true

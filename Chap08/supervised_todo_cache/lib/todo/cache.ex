@@ -1,5 +1,6 @@
 defmodule Todo.Cache do
   use GenServer
+
   # APIs
   @spec start_link(term()) :: {:ok, pid()}
   def start_link(_args) do
@@ -15,7 +16,7 @@ defmodule Todo.Cache do
   # Callback Functions
   @impl GenServer
   def init(_args) do
-    Todo.Database.start()
+    Todo.Database.start_link()
     {:ok, %{}}
   end
 

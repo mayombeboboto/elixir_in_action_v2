@@ -5,8 +5,8 @@ defmodule Todo.DatabaseWorker do
   @type key() :: term()
   @type value() :: term()
 
-  @spec start(path()) :: {:ok, pid()}
-  def start(db_folder) do
+  @spec start_link(path()) :: {:ok, pid()}
+  def start_link(db_folder) do
     IO.puts("Starting database worker.")
     GenServer.start(__MODULE__, db_folder)
   end

@@ -6,8 +6,8 @@ defmodule Todo.Database do
   @type value() :: term()
 
   # APIs
-  @spec start() :: {:ok, pid()}
-  def start do
+  @spec start_link() :: {:ok, pid()}
+  def start_link() do
     IO.puts("Starting database server.")
     GenServer.start(__MODULE__, nil, name: __MODULE__)
   end
@@ -40,7 +40,7 @@ defmodule Todo.Database do
 
   defp start_workers() do
     for index <- 1..3, into: %{} do
-      {:ok, pid} = Todo.DatabaseWorker.start(@db_folder)
+      {:ok, pid} = Todo.DatabaseWorker.start_link(@db_folder)
       {index - 1, pid}
     end
   end

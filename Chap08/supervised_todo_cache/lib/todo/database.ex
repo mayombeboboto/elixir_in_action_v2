@@ -9,7 +9,7 @@ defmodule Todo.Database do
   @spec start_link() :: {:ok, pid()}
   def start_link() do
     IO.puts("Starting database server.")
-    GenServer.start(__MODULE__, nil, name: __MODULE__)
+    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
   @spec store(key(), value()) :: no_return()

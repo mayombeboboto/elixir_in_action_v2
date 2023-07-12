@@ -2,8 +2,8 @@ defmodule Todo.Cache do
   use GenServer
 
   # APIs
-  @spec start_link(term()) :: {:ok, pid()}
-  def start_link(_args) do
+  @spec start_link() :: {:ok, pid()}
+  def start_link() do
     IO.puts("Starting to-do cache.")
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
@@ -16,6 +16,7 @@ defmodule Todo.Cache do
   # Callback Functions
   @impl GenServer
   def init(_args) do
+    Process.flag(:trap_exit, true)
     {:ok, %{}}
   end
 
@@ -41,4 +42,12 @@ defmodule Todo.Cache do
     :ok
   end
 
+  def child_spec(_args) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, []},
+      shutdown: 2000,
+      restart: :permanent
+    }
+  end
 end
